@@ -1,0 +1,5 @@
+baseURL = "http://example.org/"
+languageCode = "en-us"
+title = "Coding cheats"
+theme = "hugo-notepadium"
+copyright = "©2020 Parmod Kumar."
