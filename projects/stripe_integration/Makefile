@@ -24,7 +24,7 @@ db:
 migrate: MOUNT_VOLUME =  -v $(shell pwd)/data/migrations:/migrations
 migrate:
 	$(COMPOSE) run --rm $(MOUNT_VOLUME) db-migrate \
-	sh -c './migrate -path /migrations -database $$DATABASE_URL up'
+	sh -c 'sleep 5;./migrate -path /migrations -database $$DATABASE_URL up'
 
 # down stops and removes all containers and resources associated to docker-compose.yml
 down:
