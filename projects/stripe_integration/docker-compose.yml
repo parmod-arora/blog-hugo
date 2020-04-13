@@ -1,0 +1,46 @@
+version: "3.5"
+
+services:
+  go:
+    container_name: go-stripe-integration
+    image: golang:1.13
+    ports:
+      - "3000:3000"
+    environment:
+      TZ: Asia/Singapore
+      DATABASE_URL: postgres://stripe-integration:@db:5432/stripe-integration?sslmode=disable
+    networks:
+      - stripe-integration
+  db:
+    container_name: db-stripe-integration
+    ports:
+      - "5432:5432"
+    image: postgres:9.6-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    environment:
+      POSTGRES_USER: stripe-integration
+      POSTGRES_HOST_AUTH_METHOD: trust
+    networks:
+      - stripe-integration
+  db-migrate:
+    container_name: db-migrate-stripe-integration
+    image: migrate/migrate:v4.6.2
+    restart: "no"
+    entrypoint: ""
+    environment:
+      DATABASE_URL: postgres://stripe-integration:@db:5432/stripe-integration?sslmode=disable
+    networks:
+      - stripe-integration
+  alpine:
+    container_name: alpine-stripe-integration-local
+    image: alpine
+    restart: "no"
+    networks:
+      - stripe-integration
+networks:
+  stripe-integration:
