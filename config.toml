@@ -1,5 +1,20 @@
 baseURL = "http://example.org/"
 languageCode = "en-us"
-title = "Coding cheats"
+title = "My Coding cheats"
 theme = "hugo-notepadium"
-copyright = "©2020 Parmod Kumar."
+copyright = "©2020 mycodingcheats."
+enableInlineShortcodes= true
+enableEmoji=true
+
+[params]
+style = "auto"  # default: "auto", based on system. "light": light theme, "dark": dark theme.
+logo = "images/logo.png"
+slogan = "my coding cheats"
+
+
+[markup.highlight]
+codeFences = true
+noClasses = false
+
+[params.comments]
+enable = false
