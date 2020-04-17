@@ -15,14 +15,14 @@ jobs:
       - name: Build
         # remove --minify tag if you do not need it
         # docs: https://gohugo.io/hugo-pipes/minification/
-        run: hugo --minify
+        run: hugo
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.BLOG_REPO_OAUTH_TOKEN }}
           external_repository: parmod-arora/parmod-arora.github.io
           publish_dir: ./public
-        #   keep_files: true
+          keep_files: true
           user_name: parmod-arora
           user_email: parmodkrarora@gmail.com
           publish_branch: master
