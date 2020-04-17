@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stripe Checkout</title>
+</head>
+<body>
+  <div class="main">
+    <div class="check-out">
+      <div class="payment-form">
+        <h1>Aewsome Product</h1>
+        <div id="status"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let params = new URLSearchParams(window.location.search);
+    fetch('/v1/session-status?session_id='+params.get('session_id')+'&order_id='+params.get('order_id') )
+    .then(function(response) {
+      return response.json()
+    }).then(function(r){
+      document.querySelector("#status").innerHTML = r.status
+    })
+  </script>
+</body>
+</html>
