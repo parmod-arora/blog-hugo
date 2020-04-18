@@ -1,7 +1,7 @@
 ---
 title: "One time checkout with Stripe"
 date: 2020-04-11T18:04:30+08:00
-draft: true
+draft: false
 ---
 
 There are a lot of Online Payment processing services these days and Stripe is one of them. In this article we will have a look on one time payment processing with stripe and how to  integrate checkout flow in our project.
