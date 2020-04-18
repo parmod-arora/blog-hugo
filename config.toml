@@ -5,6 +5,7 @@ theme = "hugo-notepadium"
 copyright = "©2020 mycodingcheats."
 enableInlineShortcodes= true
 enableEmoji=true
+disableKinds = [“taxonomy”, “taxonomyTerm”]
 
 [params]
 style = "auto"  # default: "auto", based on system. "light": light theme, "dark": dark theme.
