@@ -16,9 +16,7 @@ jobs:
           hugo-version: '0.68.3'
 
       - name: Build
-        # remove --minify tag if you do not need it
-        # docs: https://gohugo.io/hugo-pipes/minification/
-        run: hugo
+        run: hugo --minify
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -29,4 +27,3 @@ jobs:
           user_name: parmod-arora
           user_email: parmodkrarora@gmail.com
           publish_branch: master
-        #   cname: example.com

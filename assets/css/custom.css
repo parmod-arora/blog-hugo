@@ -1,0 +1,12 @@
+body {
+    font-family: Arial,Verdana,Tahoma;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.429;
+    color: rgba(0,0,0,.87);
+    background-color: #fff;
+}
+
+table {
+  font-size: 14px;
+}

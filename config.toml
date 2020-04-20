@@ -11,10 +11,21 @@ style = "auto"  # default: "auto", based on system. "light": light theme, "dark"
 logo = "images/logo.png"
 slogan = "my coding cheats"
 
+[params.assets]
+css = ["css/custom.css"]  
 
 [markup.highlight]
 codeFences = true
 noClasses = false
 
+#[markup.goldmark.renderer]
+#unsafe = true  # enable raw HTML in Markdown
+
 [params.comments]
 enable = false
+
+[params.nav]
+showTags = true  
+
+# disqus
+#disqusShortname = "Parmod Kumar"

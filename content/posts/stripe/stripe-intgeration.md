@@ -1,10 +1,16 @@
----
-title: "One time checkout with Stripe"
-date: 2020-04-11T18:04:30+08:00
-draft: false
----
++++
+title= "One time checkout with Stripe"
+cover = "/images/stripe/social.png"
+date= 2020-04-11T18:04:30+08:00
+draft= false
+tags= [
+    "stripe",
+    "golang",
+		"payments"
+]
++++
 
-There are a lot of Online Payment processing services these days and Stripe is one of them. In this article we will have a look on one time payment processing with stripe and how to  integrate checkout flow in our project.
+There are a lot of Online Payment processing services these days and Stripe is one of them. In this article we will have a look at one time payment processing with stripe and how to  integrate checkout flow in our project.
 
 ### Overview
 I heard about stripe on online and i thought why don't I gave a short and see it myself. Frankly speaking I like stripe because.
@@ -17,10 +23,17 @@ I heard about stripe on online and i thought why don't I gave a short and see it
 1. Requires a server to create the session. 
 
 ### Checkout flow
+- Create Checkout Session
+- Redirect to Checkout
+- Confirm payment status
 
-![A flowchart of the Checkout flow](/images/checkout-one-time-client-server.png " ")
 
-Before prcessing any one time payment stripe want client application to create a session on their server, which represents the intent to purchase by the customer. The Checkout Sessions API provide flexibility for dynamic amounts and line items. 
+![A flowchart of the Checkout flow](/images/stripe/checkout-one-time-client-server.png " ")
+
+
+Create Checkout Session 
+------
+Before prcessing any payment stripe want client application to create a session on their server, which represents the intent to purchase by the customer. The Checkout Sessions API provide flexibility for dynamic amounts and line items. 
 
 
 
@@ -46,7 +59,9 @@ Before prcessing any one time payment stripe want client application to create a
 	session, err := session.New(params)
 ```
 
-After succesfully creating a session on stripe from our server, our app will redirect the customer to stripe payment form page using below code. where user can provide its personal and credit card information. This whole process is handled by stripe.js loaded in our app page.Its recomendded to load stripe js from `https://js.stripe.com` instead of your web server.
+Redirect to Checkout 
+------
+After succesfully creating a session on stripe from our server, our app will redirect the customer to stripe payment form page using below code. where user can provide its personal and credit card information. This whole process is handled by stripe.js loaded in our app page.Its recomendded to load stripe js from `https://js.stripe.com`.
 
 ``` js
   <script src="https://js.stripe.com/v3/"></script>
@@ -58,25 +73,73 @@ After succesfully creating a session on stripe from our server, our app will red
   </script>
 ```
 
+It will load stripe hosted page on testing env (bank OTP page in production envionment) where user can continue to make payment. Challenge flow will be handled by stripe we don't have to worry about the 3DS and chargeback cases, As these cases are handled by stripe.
+
+Confirm payment status
+------
+When your customer completes a payment, Stripe redirects them to the URL that you specified in the success_url parameter. Typically, this is a page on your website that informs your customer that their payment was successful.
+Stripe sends the `checkout.session.completed` event for a successful Checkout payment. 
+
+``` golang
+// EventCallback evant callback from stripe
+func EventCallback(w http.ResponseWriter, r *http.Request) {
+	const MaxBodyBytes = int64(65536)
+	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
+	payload, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading request body: %v\n", err)
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+
+	// If you are testing your webhook locally with the Stripe CLI you
+	// can find the endpoint's secret by running `stripe listen`
+	// Otherwise, find your endpoint's secret in your webhook settings in the Developer Dashboard
+	endpointSecret := os.Getenv("stripe_webhook_secret")
+
+	// Pass the request body and Stripe-Signature header to ConstructEvent, along
+	// with the webhook signing key.
+	event, err := webhook.ConstructEvent(payload, r.Header.Get("Stripe-Signature"),
+		endpointSecret)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error verifying webhook signature: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest) // Return a 400 error on a bad signature
+		return
+	}
+
+	// Unmarshal the event data into an appropriate struct depending on its Type
+	switch event.Type {
+	case "checkout.session.completed":
+		var session stripe.CheckoutSession
+		err := json.Unmarshal(event.Data.Raw, &session)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing webhook JSON: %v\\n", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		order.UpdateSessionStatus(r.Context(), session.ID, order.StatusPaid)
+	default:
+		fmt.Fprintf(os.Stderr, "Unexpected event type: %s\\n", event.Type)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+```
 
 ### Test cards
-|NUMBER|BRAND|CVC|DATE|
-|------|-------|---|----|
-|4242424242424242|	Visa|	Any 3 digits	|Any future date|
-|4000056655665556|	Visa (debit)|	Any 3 digits	|Any future date|
-|5555555555554444|	Mastercard|	Any 3 digits	|Any future date|
-|2223003122003222|	Mastercard (2-series)|	Any 3 digits	|Any future date|
-|5200828282828210|	Mastercard (debit)|	Any 3 digits	|Any future date|
-|5105105105105100|	Mastercard (prepaid)|	Any 3 digits	|Any future date|
-|378282246310005|	American Express|	Any 4 digits	|Any future date|
-|371449635398431|	American Express|	Any 4 digits	|Any future date|
-|6011111111111117|	Discover|	Any 3 digits	|Any future date|
-|6011000990139424|	Discover|	Any 3 digits	|Any future date|
-|3056930009020004|	Diners Club	|Any 3 digits	|Any future date|
-|36227206271667|	Diners Club (14 digit card)|	Any 3 digits	|Any future date|
-|3566002020360505|	JCB|	Any 3 digits	|Any future date|
-|6200000000000005|	UnionPay|	Any 3 digits	|Any future date|
+|NUMBER|BRAND|CVC|DATE|REMARKS|
+|------|-------|---|----|-----|
+|4242424242424242|	Visa|	Any 3 digits	|Any future date|Default U.S. card|
+|4000000000003220|	Visa (debit)|	Any 3 digits	|Any future date|Authenticate with 3D Secure|
 
-The CheckoutSessions API allows for dynamic amounts and line items but requires a server to create the session. 
 
+[Source Code](https://github.com/parmod-arora/blog-hugo/tree/master/projects/stripe_integration)
+
+``` sh
+$ git clone https://github.com/parmod-arora/blog-hugo.git 
+$ cd ./projects/stripe_integration/
+$ make run 
+```
 
