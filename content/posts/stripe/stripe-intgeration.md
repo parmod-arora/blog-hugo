@@ -8,6 +8,7 @@ tags= [
     "golang",
 		"payments"
 ]
+comment=true
 +++
 
 There are a lot of Online Payment processing services these days and Stripe is one of them. In this article we will have a look at one time payment processing with stripe and how to  integrate checkout flow in our project.
@@ -133,7 +134,6 @@ func EventCallback(w http.ResponseWriter, r *http.Request) {
 |------|-------|---|----|-----|
 |4242424242424242|	Visa|	Any 3 digits	|Any future date|Default U.S. card|
 |4000000000003220|	Visa (debit)|	Any 3 digits	|Any future date|Authenticate with 3D Secure|
-
 
 [Source Code](https://github.com/parmod-arora/blog-hugo/tree/master/projects/stripe_integration)
 

@@ -24,8 +24,8 @@ noClasses = false
 [params.comments]
 enable = false
 
+# disqus
+disqusShortname = "parmod-arora"
+
 [params.nav]
 showTags = true  
-
-# disqus
-#disqusShortname = "Parmod Kumar"
